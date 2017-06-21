@@ -1,5 +1,6 @@
 #include "xvideothread.h"
 #include "xffmpeg.h"
+#include <QDebug>
 bool isexit=false;
 XVideoThread::XVideoThread()
 {
@@ -26,6 +27,7 @@ void XVideoThread::run()
         av_packet_unref(&pkt);
         if(XFFmpeg::Get()->fps>0)
         msleep(1000/XFFmpeg::Get()->fps);
+
     }
 }
 

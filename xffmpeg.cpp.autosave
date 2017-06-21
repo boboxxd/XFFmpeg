@@ -34,11 +34,12 @@ bool XFFmpeg::Open(const char *path)
            {
                AVCodecContext *enc=ic->streams[i]->codec;
                int fpstmp=r2d(ic->streams[i]->avg_frame_rate);
+  //不知道为什么第二次fps就为0，解决方案如下：             
                if(fpstmp !=0)
                {
                    fps=fpstmp;
                }
-               qDebug()<<"fps="<<fps;
+               
                if(enc->codec_type==AVMEDIA_TYPE_VIDEO)
                {
                    videostream=i;
