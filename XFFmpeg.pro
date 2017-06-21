@@ -17,11 +17,13 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     xffmpeg.cpp \
-    videowidget.cpp
+    videowidget.cpp \
+    xvideothread.cpp
 
 HEADERS  += mainwindow.h \
     xffmpeg.h \
-    videowidget.h
+    videowidget.h \
+    xvideothread.h
 
 FORMS    += mainwindow.ui
 

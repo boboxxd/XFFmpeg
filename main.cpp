@@ -4,6 +4,7 @@
 #include<QDebug>
 int main(int argc, char *argv[])
 {
+
 //    char *path="/Users/xuxudong/CLionProjects/untitled/1.mp4";
 //    if(XFFmpeg::Get()->Open(path))
 //    {

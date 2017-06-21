@@ -1,5 +1,11 @@
 #include "xffmpeg.h"
 #include<QDebug>
+
+static double r2d(AVRational r)
+{
+    return r.num==0||r.den==0 ?0. :(double)r.num/(double)r.den;
+}
+
 XFFmpeg::XFFmpeg()
 {
     errorbuf[0]='\0';
@@ -22,13 +28,12 @@ bool XFFmpeg::Open(const char *path)
         av_strerror(re,errorbuf, sizeof(errorbuf));
         return false;
      }
-
      totalMs=(ic->duration/AV_TIME_BASE)*1000;
-
 
            for(int i=0;i<ic->nb_streams;i++)
            {
                AVCodecContext *enc=ic->streams[i]->codec;
+               fps=r2d(ic->streams[i]->avg_frame_rate);
                if(enc->codec_type==AVMEDIA_TYPE_VIDEO)
                {
                    videostream=i;
@@ -108,7 +113,43 @@ AVFrame *XFFmpeg::Decode(const AVPacket *pkt)
     mutex.unlock();
     return yuv;
 }
+bool XFFmpeg::ToRGB(char *out,int outwidth,int outheight)
+{
+    mutex.lock();
+    if(!ic||!yuv)
+    {
+        mutex.unlock();
+        return false;
+    }
 
+    AVCodecContext *videoctx=ic->streams[this->videostream]->codec;
+    cCtx=sws_getCachedContext(cCtx,
+                                          videoctx->width,
+                                          videoctx->height,
+                                          videoctx->pix_fmt,//视频格式
+                                          outwidth,outheight,
+                                          AV_PIX_FMT_BGRA,//qt
+                                          SWS_BICUBIC,
+                                          NULL,NULL,NULL);
+                if(!cCtx)
+                {
+                    mutex.unlock();
+                    printf("sws_getCachedContext failed!");
+                    return false;
+                }
+    //转换
+                uint8_t *data[AV_NUM_DATA_POINTERS]={0};
+                data[0]=(uint8_t  *)out;
+                int linesize[AV_NUM_DATA_POINTERS]={0};
+                linesize[0]=outwidth*4;
+                int h=sws_scale(cCtx,yuv->data,yuv->linesize,0,videoctx->height,data,linesize);
+                if(h>0)
+                {
+                    printf("(%d)",h);
+                }
+    mutex.unlock();
+    return true;
+}
 bool XFFmpeg::ToRGB(const AVFrame,char *out,int outwidth,int outheight)
 {
     mutex.lock();

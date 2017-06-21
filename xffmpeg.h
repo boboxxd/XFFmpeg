@@ -35,9 +35,11 @@ public:
     AVFrame *Decode(const AVPacket *pkt);
 
     bool ToRGB(const AVFrame,char *out,int outwidth,int outheight);
+    bool ToRGB(char *out,int outwidth,int outheight);
     std::string Geterror();
     virtual ~XFFmpeg();
     int totalMs=0;
+    int fps=0;
     int videostream=0;
 protected:
     char errorbuf[1024];
