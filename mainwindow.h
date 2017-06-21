@@ -14,9 +14,12 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
+    void timerEvent(QTimerEvent *e);
 
 public slots:
     void open();
+    void sliderPress();
+    void sliderRelease();
 
 private:
     Ui::MainWindow *ui;

@@ -42,3 +42,17 @@ INCLUDEPATH += $$PWD/../../../../usr/local/Cellar/ffmpeg/3.3.2/include
 DEPENDPATH += $$PWD/../../../../usr/local/Cellar/ffmpeg/3.3.2/lib
 
 macx: PRE_TARGETDEPS += $$PWD/../../../../usr/local/Cellar/ffmpeg/3.3.2/lib/libswscale.a
+
+macx: LIBS += -L$$PWD/../../../../usr/local/Cellar/ffmpeg/3.3.2/lib/ -lavutil
+
+INCLUDEPATH += $$PWD/../../../../usr/local/Cellar/ffmpeg/3.3.2/include
+DEPENDPATH += $$PWD/../../../../usr/local/Cellar/ffmpeg/3.3.2/include
+
+macx: PRE_TARGETDEPS += $$PWD/../../../../usr/local/Cellar/ffmpeg/3.3.2/lib/libavutil.a
+
+macx: LIBS += -L$$PWD/../../../../usr/local/Cellar/ffmpeg/3.3.2/lib/ -lavcodec
+
+INCLUDEPATH += $$PWD/../../../../usr/local/Cellar/ffmpeg/3.3.2/include
+DEPENDPATH += $$PWD/../../../../usr/local/Cellar/ffmpeg/3.3.2/include
+
+macx: PRE_TARGETDEPS += $$PWD/../../../../usr/local/Cellar/ffmpeg/3.3.2/lib/libavcodec.a

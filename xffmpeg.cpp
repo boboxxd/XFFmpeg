@@ -17,7 +17,7 @@ XFFmpeg::~XFFmpeg()
 
 }
 
-bool XFFmpeg::Open(const char *path)
+int XFFmpeg::Open(const char *path)
 {
     Close();
     mutex.lock();
@@ -26,7 +26,7 @@ bool XFFmpeg::Open(const char *path)
     {
         mutex.unlock();
         av_strerror(re,errorbuf, sizeof(errorbuf));
-        return false;
+        return 0;
      }
      totalMs=(ic->duration/AV_TIME_BASE)*1000;
 
@@ -34,11 +34,12 @@ bool XFFmpeg::Open(const char *path)
            {
                AVCodecContext *enc=ic->streams[i]->codec;
                int fpstmp=r2d(ic->streams[i]->avg_frame_rate);
+  //不知道为什么第二次fps就为0，解决方案如下：             
                if(fpstmp !=0)
                {
                    fps=fpstmp;
                }
-               qDebug()<<"fps="<<fps;
+               
                if(enc->codec_type==AVMEDIA_TYPE_VIDEO)
                {
                    videostream=i;
@@ -60,7 +61,7 @@ bool XFFmpeg::Open(const char *path)
                }
            }
      mutex.unlock();
-     return true;
+     return totalMs;
 }
 
 std::string XFFmpeg::Geterror()
@@ -103,6 +104,7 @@ AVFrame *XFFmpeg::Decode(const AVPacket *pkt)
         yuv=av_frame_alloc();
     }
     int re=avcodec_send_packet(ic->streams[pkt->stream_index]->codec,pkt);
+
     if(re!=0)
     {
         mutex.unlock();
@@ -116,6 +118,7 @@ AVFrame *XFFmpeg::Decode(const AVPacket *pkt)
         return NULL;
     }
     mutex.unlock();
+    pts=yuv->pts*r2d(ic->streams[pkt->stream_index]->time_base)*1000;
     return yuv;
 }
 bool XFFmpeg::ToRGB(char *out,int outwidth,int outheight)
@@ -192,6 +195,26 @@ bool XFFmpeg::ToRGB(const AVFrame,char *out,int outwidth,int outheight)
     mutex.unlock();
     return true;
 }
+
+bool XFFmpeg::Seek(float pos)
+{
+    mutex.lock();
+    if(!ic)
+    {
+        mutex.unlock();
+        return false;
+    }
+
+    int64_t  stamp=0;
+    stamp=pos*ic->streams[videostream]->duration;
+    int re=av_seek_frame(ic,videostream,stamp,AVSEEK_FLAG_BACKWARD | AVSEEK_FLAG_FRAME);
+
+    avcodec_flush_buffers(ic->streams[videostream]->codec);
+    mutex.unlock();
+    if(re>=0)   return true;
+    return false;
+}
+
 
 void XFFmpeg::Close()
 {

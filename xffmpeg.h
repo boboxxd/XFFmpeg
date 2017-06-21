@@ -21,9 +21,9 @@ public:
     ///////////////////////////////////////////////////////
     /// \brief Open打开视频，如果上次打开会先关闭
     /// \param path 视频文件路径
-    /// \return 成功失败，失败错误信息通过GetError 获取
+    /// \return 直接返回totalmsc,成功失败，失败错误信息通过GetError 获取
     ///
-    bool Open(const char *path);
+    int Open(const char *path);
 
     void Close();
     ////////////////////////////////////////////////////
@@ -36,10 +36,14 @@ public:
 
     bool ToRGB(const AVFrame,char *out,int outwidth,int outheight);
     bool ToRGB(char *out,int outwidth,int outheight);
+    //pos:0~1
+    bool Seek(float pos);
+
     std::string Geterror();
     virtual ~XFFmpeg();
     int totalMs=0;
     int fps=0;
+    int pts=0;
     int videostream=0;
 protected:
     char errorbuf[1024];
